@@ -1,0 +1,22 @@
+create table user_roles(
+	id_user_role serial primary key,
+	name_user_role varchar(70) not null 
+)
+
+create table users(
+	id_user serial primary key,
+	first_name varchar(100) not null,
+	second_name varchar(100) not null,
+	surname varchar(100) not null,
+	login varchar(50) not null,
+	id_user_role int not null references user_roles(id_user_role) on delete cascade
+)
+
+create table products(
+	id_product serial primary key,
+	category varchar(100) not null default="shoes",
+	subcategory varchar(100),
+	manufacturer varchar(200) not null,
+	name_product varchar(300) not null,
+	
+)
