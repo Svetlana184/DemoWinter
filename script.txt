@@ -1,22 +1,68 @@
+create table companies(
+	id_company serial primary key,
+	name_company varchar(100) not null
+);
+
 create table user_roles(
 	id_user_role serial primary key,
-	name_user_role varchar(70) not null 
-)
+	name_user_role varchar(70) not null unique
+);
 
 create table users(
 	id_user serial primary key,
 	first_name varchar(100) not null,
 	second_name varchar(100) not null,
 	surname varchar(100) not null,
-	login varchar(50) not null,
-	id_user_role int not null references user_roles(id_user_role) on delete cascade
-)
+	login varchar(50) not null unique,
+	id_user_role int not null references user_roles(id_user_role) 
+		on delete cascade 
+		on update cascade
+);
+
+create table sizes(
+	id_size serial primary key,
+	shoe_size float not null unique
+);
 
 create table products(
 	id_product serial primary key,
-	category varchar(100) not null default="shoes",
+	category varchar(100) not null default 'shoes',
 	subcategory varchar(100),
-	manufacturer varchar(200) not null,
+	id_company int references companies(id_company) 
+		on delete cascade 
+		on update cascade,
 	name_product varchar(300) not null,
-	
-)
+	url text not null,
+	composition text not null,
+	description text not null,
+	amount int not null,
+	cost money not null
+);
+
+create table available_sizes(
+	id_available_size serial primary key,
+	id_product int not null references products(id_product) 
+		on delete cascade 
+		on update cascade,
+	id_size int not null references sizes(id_size),
+	is_available bool not null
+);
+
+create table orders(
+	id_order serial primary key,
+	id_user int references users(id_user) 
+		on delete cascade 
+		on update cascade,
+	id_product int references products(id_product) 
+		on delete cascade 
+		on update cascade,
+	amount int not null,
+	cost_for_item money not null,
+	cost money,
+	date_order date 
+);
+
+
+
+
+
