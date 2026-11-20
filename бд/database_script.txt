@@ -1,68 +1,82 @@
 create table companies(
-	id_company serial primary key,
-	name_company varchar(100) not null
+    id_company serial primary key,
+    name_company varchar(100) not null
 );
 
 create table user_roles(
-	id_user_role serial primary key,
-	name_user_role varchar(70) not null unique
+    id_user_role serial primary key,
+    name_user_role varchar(70) not null unique
 );
 
+insert into user_roles (id_user_role, name_user_role) values
+    (1, 'Администратор'),
+    (2, 'Менеджер'),
+    (3, 'Пользователь');
+
 create table users(
-	id_user serial primary key,
-	first_name varchar(100) not null,
-	second_name varchar(100) not null,
-	surname varchar(100) not null,
-	login varchar(50) not null unique,
-	id_user_role int not null references user_roles(id_user_role) 
-		on delete cascade 
-		on update cascade
+    id_user serial primary key,
+    first_name varchar(100) not null,
+    second_name varchar(100) not null,
+    surname varchar(100) not null,
+    login varchar(50) not null unique,
+    id_user_role int not null references user_roles(id_user_role)
+        on delete cascade
+        on update cascade
 );
 
 create table sizes(
-	id_size serial primary key,
-	shoe_size float not null unique
+    id_size serial primary key,
+    shoe_size double not null unique
 );
 
+
 create table products(
-	id_product serial primary key,
-	category varchar(100) not null default 'shoes',
-	subcategory varchar(100),
-	id_company int references companies(id_company) 
-		on delete cascade 
-		on update cascade,
-	name_product varchar(300) not null,
-	url text not null,
-	composition text not null,
-	description text not null,
-	amount int not null,
-	cost money not null
+    id_product serial primary key,
+    category varchar(100) not null,
+    subcategory varchar(100),
+    id_company int references companies(id_company)
+        on delete cascade
+        on update cascade,
+    name_product varchar(300) not null,
+    url text,
+    composition text not null,
+    description text not null,
+    cost money not null
 );
 
 create table available_sizes(
-	id_available_size serial primary key,
-	id_product int not null references products(id_product) 
-		on delete cascade 
-		on update cascade,
-	id_size int not null references sizes(id_size),
-	is_available bool not null
+    id_available_size serial primary key,
+    id_product int not null references products(id_product)
+        on delete cascade
+        on update cascade,
+    id_size int not null references sizes(id_size)
+        on delete restrict
+        on update cascade,
+    is_available bool not null default true,
+    amount int not null default 0
 );
 
 create table orders(
-	id_order serial primary key,
-	id_user int references users(id_user) 
-		on delete cascade 
-		on update cascade,
-	id_product int references products(id_product) 
-		on delete cascade 
-		on update cascade,
-	amount int not null,
-	cost_for_item money not null,
-	cost money,
-	date_order date 
+    id_order serial primary key,
+    id_user int references users(id_user)
+        on delete set null
+        on update cascade,
+    date_order date not null default current_date,
+    total_cost money
 );
 
-
-
-
-
+create table order_items(
+    id_order_item serial primary key,
+    id_order int not null references orders(id_order)
+        on delete cascade
+        on update cascade,
+    id_product int not null references products(id_product)
+        on delete restrict
+        on update cascade,
+    id_size int references sizes(id_size)
+        on delete set null
+        on update cascade,
+    amount int not null,
+    cost_for_item money not null,
+    cost numeric(12,2) generated always as ((amount)::numeric * cost_for_item::numeric) stored
+);
